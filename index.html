@@ -1,7 +1,233 @@
-<!DOCTYPE html>
-<html>
+﻿<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+<!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>haschdl.net</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Creative coding learning portfolio - Half Scheidl" />
+    <meta name="keywords" content="creative codings, p5js, processing, openframeworks, open frameworks, treejs, webgl" />
+    <meta name="author" content="Half Scheidl" />
+    <!--
+      //////////////////////////////////////////////////////
+
+      FREE HTML5 TEMPLATE
+      DESIGNED & DEVELOPED by FREEHTML5.CO
+
+      Website: 		http://freehtml5.co/
+      Email: 			info@freehtml5.co
+      Twitter: 		http://twitter.com/fh5co
+      Facebook: 		https://www.facebook.com/fh5co
+
+      //////////////////////////////////////////////////////
+       -->
+    <!-- Facebook and Twitter integration -->
+    <meta property="og:title" content="haschdl.net Learning portfolio" />
+    <meta property="og:image" content="/images/model_1.png" />
+    <meta property="og:url" content="https://haschdl.net/about.html" />
+    <meta property="og:site_name" content="" />
+    <meta property="og:description" content="" />
+    <meta name="twitter:title" content="" />
+    <meta name="twitter:image" content="" />
+    <meta name="twitter:url" content="" />
+    <meta name="twitter:card" content="" />
+    <meta name="linkedin:url" content="fi.linkedin.com/in/scheidlh" />
+    <!-- Place favicon.png and apple-touch-icon.png in the root directory -->
+    <link rel="shortcut icon" href="/favicon.png">
+    <!-- Google Webfonts -->
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,300,100,500' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="css/animate.css">
+    <!-- Icomoon Icon Fonts-->
+    <link rel="stylesheet" href="css/icomoon.css">
+    <!-- Magnific Popup -->
+    <link rel="stylesheet" href="css/magnific-popup.css">
+    <!-- Salvattore -->
+    <link rel="stylesheet" href="css/salvattore.css">
+    <!-- Theme Style -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Modernizr JS -->
+    <script src="Scripts/modernizr-2.6.2.min.js"></script>
+    <!-- FOR IE9 below -->
+    <!--[if lt IE 9]>
+    <script src="Scripts/respond.min.js"></script>
+    <![endif]-->
+</head>
 <body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
+
+    <div id="fh5co-offcanvass"></div>
+    <header id="fh5co-header" role="banner"></header>
+    <!-- END .header -->
+
+
+    <div id="fh5co-main">
+        <div class="container">
+            <div class="row">
+                <div id="fh5co-board" data-columns>
+                    <!--
+                    <div class="item">
+                        <div class="animate-box">
+                            <a href="images/theshining500.png" class="image-popup fh5co-board-img" title="The Shining">
+                                <img src="images/theshining500.png" alt="The Shining">
+                            </a>
+                            <div class="description" style="display:none">
+                                <a href="p5/flashlight_pic/index.html">Interactive sketch</a>
+                            </div>
+                        </div>
+                        <div class="fh5co-desc">The Shining</div>
+                    </div>
+                    -->
+                    <div class="item">
+                        <a class="image-popup fh5co-board-img popup-vimeo" href="https://vimeo.com/195589176">
+                            <img src="images/intergall.jpg" alt="Interactive Gallery" />
+                        </a>
+                        <div class="fh5co-desc">
+                            Interactive gallery<br /><small>
+                                Interactive gallery is a photography exhibition in which the audience is invited to explore the images by moving their hands, as if shedding light on a wall using a flashlight.
+                                In this video, the position of the hands is shown on top-right right corner for illustration purposes, but it is not part of the installation. The installation was built using Kinect and Javascript.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="item">
+                        <div class="animate-box">
+                            <a href="p5/flashlight_pic/index.html" class="fh5co-board-img">
+                                <img src="images/theshining500.png" alt="The Shining">
+                            </a>
+                        </div>
+                        <div class="fh5co-desc">The Shining<br /><small>Interactive panel. #p5.js #javascript #canvas</small></div>
+                    </div>
+
+                    <div class="item">
+                        <div class="animate-box">
+                            <a href="p5/dust/index.html?img=02&bMode=LIGHTEST&interactive=1" class="fh5co-board-img">
+                                <img src="images/urnot.gif" alt="You are not alone.">
+                            </a>
+                        </div>
+                        <div class="fh5co-desc">You are not.<br /><small>Interactive panel.</small></div>
+                    </div>
+
+                    <div class="item">
+                        <div class="animate-box">
+                            <a href="images/queen.png" class="image-popup fh5co-board-img" title="QUEEN, album features">
+                                <img src="images/queen.png" alt="Queen poster">
+                            </a>
+                            <div class="description" style="display:none">
+                                <a href="images/queen.png">Full image</a>
+                            </div>
+                        </div>
+                        <div class="fh5co-desc">
+                            QUEEN. <br />
+                            A data visualization poster created from Spotify API data and Nodebox. Source available in <a href="https://github.com/haschdl/spotifyalbumfeatures">Github</a>
+                        </div>
+                    </div>
+
+                    <div class="item">
+                        <div class="animate-box">
+                            <a href="images/orbital.gif" class="image-popup fh5co-board-img" title="Orbital Challenge">
+                                <img src="images/orbital.jpg" alt="Orbital Challenge">
+                            </a>
+                            <div class="description" style="display:none">
+                                <a href="p5/orbital/">Interactive sketch</a>
+
+                            </div>
+                        </div>
+                        <div class="fh5co-desc">
+                            Orbital Challenge: coding challenge flerting with 3D visualization.
+                            <p>
+                                This sketch is the 3D visualization of a routing challenge.
+                                Tap SOLVE button to show the solution. Tap anywhere to hide/show the planet.
+                            </p>
+
+                            <small>
+                                "Create an algorithm that can route phone calls through space across a network of satellites [...]. No signal can travel through Earth!"
+                                &copy; Reaktor 2016.
+                            </small>
+                        </div>
+                    </div>
+
+
+                    <div class="item">
+                        <div class="animate-box">
+                            <a href="images/candlelight01s.gif" class="image-popup fh5co-board-img" title="Harbor at night. Picture">
+                                <img src="images/candlelight01.png" alt="Candlelight">
+                            </a>
+                            <div class="description" style="display:none">
+                                <a href="p5/flashlight_pic/index.html?img=01">Sketch</a>
+                            </div>
+                        </div>
+                        <div class="fh5co-desc">Candlelight, 1</div>
+                    </div>
+                    <div class="item">
+                        <div class="animate-box">
+                            <a href="images/model_1.png" class="image-popup fh5co-board-img" title="Fiberglass, sketch">
+                                <img src="images/model_1_s.jpg" alt="Fiberglass, sketch">
+                            </a>
+                            <div class="description" style="display:none">
+                                <p>3D model created using Kinect and textured in Blender. This is a work-in-progress of an interactive piece.</p>
+                            </div>
+                        </div>
+                        <div class="fh5co-desc">Fiberglass, sketch</div>
+                    </div>
+
+                    <div class="item">
+                        <div class="animate-box">
+                            <a href="images/candlelight02.gif" class="image-popup fh5co-board-img" title="Candlelight, 2">
+                                <img src="images/candlelight02.png" alt="Candlelight">
+                            </a>
+                            <div class="description" style="display:none">
+                                <a href="p5/flashlight_pic/index.html?img=01&curveMode=2">Interactive sketch</a>
+                            </div>
+                            <div class="fh5co-desc">Candlelight, 2</div>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="animate-box">
+                            <a href="images/caleido2.jpg" class="image-popup fh5co-board-img" title="Caleidoscope, 2">
+                                <img src="images/caleido2.jpg" alt="Caleidoscope">
+                            </a>
+                            <div class="description" style="display:none">
+                                <p>This is an interactive visualization which simulates a caleidoscope. Based on example in book OpenFrameworks Essentials.</p>
+                            </div>
+                            <div class="fh5co-desc">Caleidoscope, 2</div>
+                        </div>
+                    </div>
+
+                    <div class="item">
+                        <div class="animate-box">
+                            <a class="image-popup fh5co-board-img popup-youtube" href="https://www.youtube.com/watch?v=otNN4KYq3UU">
+                                <img src="images/caleido1.jpg" alt="Audioreactive">
+                            </a>
+                            <div class="fh5co-desc">A audio-reactive visualization. Video has loud audio!<small>OpenFrameworks and C++.</small></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer id="fh5co-footer" />
+    <!-- jQuery -->
+    <script src="Scripts/jquery-1.11.0.min.js"></script>
+    <!-- jQuery Easing -->
+    <script src="Scripts/jquery.easing.1.3.js"></script>
+    <!-- Bootstrap -->
+    <script src="Scripts/bootstrap.min.js"></script>
+    <!-- Waypoints -->
+    <script src="Scripts/jquery.waypoints.min.js"></script>
+    <!-- Magnific Popup -->
+    <script src="Scripts/jquery.magnific-popup.min.js"></script>
+    <!-- Salvattore -->
+    <script src="Scripts/salvattore.min.js"></script>
+    <!-- Main JS -->
+    <script src="Scripts/main.js"></script>
+
+
 </body>
 </html>

@@ -1,0 +1,50 @@
+[
+  {
+    "outputFileName": "p5/orbital/challenge.js",
+    "inputFiles": [
+      "p5/orbital/challenge.js"
+    ]
+  },
+  {
+    "outputFileName": "p5/orbital/router.js",
+    "inputFiles": [
+      "p5/orbital/router.js"
+    ]
+  },
+  {
+    "outputFileName": "p5/orbital/orbital.css",
+    "inputFiles": [
+      "p5/orbital/orbital.css"
+    ]
+  },
+  {
+    "outputFileName": "css/skeleton.css",
+    "inputFiles": [
+      "css/skeleton.css"
+    ]
+  },
+  {
+    "outputFileName": "p5/flashlight_pic/flashlight.js",
+    "inputFiles": [
+      "p5/flashlight_pic/flashlight.js"
+    ]
+  },
+  {
+    "outputFileName": "css/tooltipster.bundle.min.css",
+    "inputFiles": [
+      "css/tooltipster.bundle.css"
+    ]
+  },
+  {
+    "outputFileName": "p5/intergallery/gallery.min.js",
+    "inputFiles": [
+      "p5/intergallery/gallery.js"
+    ]
+  },
+  {
+    "outputFileName": "p5/intergallery/kinect.min.js",
+    "inputFiles": [
+      "p5/intergallery/kinect.js"
+    ]
+  }
+]

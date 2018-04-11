@@ -1,0 +1,89 @@
+﻿<html>
+<head>
+    <meta charset="UTF-8">
+    <script language="javascript" src="..\libraries/jquery-1.11.0.min.js"></script>
+    <script language="javascript" type="text/javascript" src="..\libraries/p5.min.js"></script>
+    <!-- uncomment lines below to include extra p5 libraries -->
+    <script language="javascript" src="..\libraries/p5.dom.min.js"></script>
+    <script language="javascript" src="..\libraries/p5.sound.min.js"></script>
+    <script src="../reaktor/router.js"></script>
+    <script language="javascript" src="sphere.js"></script>
+
+    <!-- this line removes any default padding and style. you might only need one of these values set. -->
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            position: relative;
+            color: red;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        * {
+            -moz-box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        @media (min-width: 858px) {
+            html {
+                font-size: 20px;
+            }
+
+            .button {
+                width: 200px;
+                height: 66px;
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 623px) {
+            html {
+                font-size: 12px;
+            }
+
+            .button {
+                width: 200px;
+                font-size: 12px;
+            }
+        }
+
+        .button {
+            background-color: white; /* Green */
+            border: none;
+            color: black;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .footer a {
+            color: #bbb;
+            text-decoration: none;
+        }
+
+        .footer {
+            display: none;
+            position: absolute;
+            left: 0;
+            width: 100%;
+            bottom: 20px;
+            padding-right: 20px;
+            padding-left: 20px;
+            font-size: 14px;
+            text-align: right;
+        }
+    </style>
+    <script language="javascript" type="text/javascript">
+        function credits() {
+            alert('Credits.');
+        };
+    </script>
+    </style>
+</head>
+
+<body>
+</body>
+</html>

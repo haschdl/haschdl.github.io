@@ -1,0 +1,168 @@
+﻿<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1,maximum-scale=1">
+
+    <script language="javascript" src="..\Scripts/jquery-1.11.0.min.js"></script>
+<script src="../Scripts/velocity.min.js"></script>    
+    
+    
+    <script src="../node_modules/dropbox/dist/Dropbox-sdk.min.js"></script>
+    <script language="javascript" src="..\Scripts\tooltipster.bundle.min.js"></script>
+    <script src="tooltip.js"></script>
+    <script src="connector.js"></script>
+    <script language="javascript" src="galleryimgprovider.js"></script>
+    <script src="../Scripts/pixi.min.js"></script>
+    <!--
+    <script src="../libraries/speech.1.0.0.min.js"></script>
+    <script src="speech.js"></script>
+    -->
+    <script language="javascript" src="gallery.js"></script>
+    
+
+    <!-- this line removes any default padding and style. you might only need one of these values set. -->
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            background-color: black;
+        }
+
+        div.layover {
+            background: rgb(238, 0, 140);
+            /* for IE */
+            background: rgba(238, 0, 140,0.5);
+        }
+        .Absolute-Center {
+            position:fixed;
+            top: 50%;
+            left: 50%;
+            width:120px;
+            height:120px;
+            margin-top: -60px; /*set to a negative number 1/2 of your height*/
+            margin-left: -60px; /*set to a negative number 1/2 of your width*/
+            
+         }
+        #progressbart {
+            position: fixed;
+            height: 4vmin;
+            width: 0%;
+            bottom: 0;
+        }
+
+        #imgAuthor {
+            position: fixed;
+            width: auto;
+            opacity: 0;
+            font-size: 4vmin;
+            line-height: 4vmin;
+            height: 4vmin;
+            color: #c2ca8a;
+            right: 0px;
+            padding-right: 2vmin;
+            padding-left: 2vmin;
+            bottom: 0px;
+        }
+    </style>
+    <!-- Place favicon.png and apple-touch-icon.png in the root directory -->
+    <link rel="shortcut icon" href="/favicon.png">
+    <!-- Google Webfonts -->
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,300,100,500' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+    <link href="../../css/tooltipster.bundle.min.css" rel="stylesheet" />
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="/css/animate.css">
+    <!-- Icomoon Icon Fonts-->
+    <link rel="stylesheet" href="/css/icomoon.css">
+    <!-- Magnific Popup -->
+    <link rel="stylesheet" href="/css/magnific-popup.css">
+    <!-- Salvattore -->
+    <link rel="stylesheet" href="/css/salvattore.css">
+    <!-- Theme Style -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- Modernizr JS -->
+    <script src="/Scripts/modernizr-2.6.2.min.js"></script>
+    <!-- FOR IE9 below -->
+    <!--[if lt IE 9]>
+    <script src="Scripts/respond.min.js"></script>
+    <![endif]-->
+    <script type="text/javascript">
+
+
+
+
+
+
+    </script>
+</head>
+<body>
+    <img id="dummyImgElement" />
+
+<div id="imgLoading" class="absolute-center" >
+    <img src="/images/infinity.gif"/>
+</div>
+
+<div style="position: absolute; top: 50%; right: 0%">
+        <a href="#" class="fh5co-menu-btn js-fh5co-menu-btn">
+            <i class="icon-chevron-left large"></i>
+        </a>
+    </div>
+    <!--Loaded with JS-->
+    <div id="fh5co-offcanvass"></div>
+    <div id="progbar-container" style="position: absolute; bottom: 50px; left: 50px; width: 50px; height: 50px; opacity: 0">
+        <div>
+            
+        </div>
+    </div>
+    <div id="topBar" style="background-color: grey; display: none;">
+        <input type="text" id="serverUrl" value="ws://localhost:8000/kinectservice" style="width: 400px" />
+        <input type="button" value="Connect" id="btnConnect" />
+        <input type="button" value="Disconnect" id="btnDisconnect" />
+        <br />
+        <!--<input type="text" id="textInput"/><input type="button" value="Send" id="btnSend"/><br/>-->
+    </div>
+    <div id="spanBackground" style="background: rgba(238, 0, 140, 120);" class="tooltipjs" title="Touch to interact">
+        <!--<table>
+            <tr>
+                <td>WebSocket</td>
+                <td><span id="spanStatus">Not connected.</span></td>
+            </tr>
+            <tr>
+                <td>IsInitialized</td>
+                <td><span id="isInitialized">Not initialized</span></td>
+            </tr>
+            <tr>
+                <td>Stability</td>
+                <td><span id="stability">Non-stable</span></td>
+            </tr>
+            <tr>
+                <td>Left hand</td>
+                <td><span id="LEFT_HAND"></span></td>
+            </tr>
+            <tr>
+                <td>Right hand</td>
+                <td><span id="RIGHT_HAND"></span></td>
+            </tr>
+            <tr>
+                <td>Message</td>
+                <td><span id="message"></span></td>
+            </tr>
+        </table>-->
+    </div>
+
+    <div id="progressbart" class="layover">
+        <div id="imgAuthor" class="layover">Half Scheidl</div>
+    </div>
+    <!-- jQuery Easing -->
+    <script src="/Scripts/jquery.easing.1.3.js"></script>
+    <!-- Bootstrap -->
+    <script src="/Scripts/bootstrap.min.js"></script>
+    <!-- Waypoints -->
+    <script src="/Scripts/jquery.waypoints.min.js"></script>
+    <!-- Magnific Popup -->
+    <script src="/Scripts/jquery.magnific-popup.min.js"></script>
+    <!-- Salvattore -->
+    <script src="/Scripts/salvattore.min.js"></script>
+
+</body>
+</html>

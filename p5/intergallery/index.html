@@ -1,0 +1,456 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1,maximum-scale=1">
+
+    <script language="javascript" src="/Scripts/jquery-1.11.0.min.js"></script>
+    <script language="javascript" src="/Scripts/velocity.min.js"></script>
+    <script language="javascript" src="/Scripts/tooltipster.bundle.min.js"></script>
+    <script src="../../Scripts/threejs/stats.min.js"></script>
+    <script src="../../Scripts/threejs/Three.min.js"></script>
+    <script src="../../Scripts/KinectMessageType.js"></script>
+    <script src="../../Scripts/KinectWorkerManager.js"></script>
+    <script src="../../Scripts/xml2json.min.js"></script>
+
+    <script src="tooltip.js"></script>
+    <script src="GalleryRenderer.js"></script>
+
+    <script language="javascript" src="galleryimgprovider.js"></script>
+    
+    <!--
+    <script src="../libraries/speech.1.0.0.min.js"></script>
+    <script src="speech.js"></script>
+    -->
+    <script language="javascript" src="gallerythree.js"></script>
+    <script id="noiseFunction" type="x-shader/x-fragment">
+        //#version 300 es
+        //
+        // Description : Array and textureless GLSL 2D simplex noise function.
+        //      Author : Ian McEwan, Ashima Arts.
+        //  Maintainer : stegu
+        //     Lastmod : 20110822 (ijm)
+        //     License : Copyright (C) 2011 Ashima Arts. All rights reserved.
+        //               Distributed under the MIT License. See LICENSE file.
+        //               https://github.com/ashima/webgl-noise
+        //               https://github.com/stegu/webgl-noise
+        //
+
+        vec3 mod289(vec3 x) {
+        return x - floor(x * (1.0 / 289.0)) * 289.0;
+        }
+
+        vec2 mod289(vec2 x) {
+        return x - floor(x * (1.0 / 289.0)) * 289.0;
+        }
+
+        vec3 permute(vec3 x) {
+        return mod289(((x*34.0)+1.0)*x);
+        }
+
+        float snoise(vec2 v)
+        {
+        const vec4 C = vec4(0.211324865405187,  // (3.0-sqrt(3.0))/6.0
+        0.366025403784439,  // 0.5*(sqrt(3.0)-1.0)
+        -0.577350269189626,  // -1.0 + 2.0 * C.x
+        0.024390243902439); // 1.0 / 41.0
+        // First corner
+        vec2 i  = floor(v + dot(v, C.yy) );
+        vec2 x0 = v -   i + dot(i, C.xx);
+
+        // Other corners
+        vec2 i1;
+        //i1.x = step( x0.y, x0.x ); // x0.x > x0.y ? 1.0 : 0.0
+        //i1.y = 1.0 - i1.x;
+        i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+        // x0 = x0 - 0.0 + 0.0 * C.xx ;
+        // x1 = x0 - i1 + 1.0 * C.xx ;
+        // x2 = x0 - 1.0 + 2.0 * C.xx ;
+        vec4 x12 = x0.xyxy + C.xxzz;
+        x12.xy -= i1;
+
+        // Permutations
+        i = mod289(i); // Avoid truncation effects in permutation
+        vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
+        + i.x + vec3(0.0, i1.x, 1.0 ));
+
+        vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+        m = m*m ;
+        m = m*m ;
+
+        // Gradients: 41 points uniformly over a line, mapped onto a diamond.
+        // The ring size 17*17 = 289 is close to a multiple of 41 (41*7 = 287)
+
+        vec3 x = 2.0 * fract(p * C.www) - 1.0;
+        vec3 h = abs(x) - 0.5;
+        vec3 ox = floor(x + 0.5);
+        vec3 a0 = x - ox;
+
+        // Normalise gradients implicitly by scaling m
+        // Approximation of: m *= inversesqrt( a0*a0 + h*h );
+        m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+        
+        // Compute final noise value at P
+        vec3 g;
+        g.x  = a0.x  * x0.x  + h.x  * x0.y;
+        g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+        return 130.0 * dot(m, g);
+        }
+    </script>
+<script id="fragmentShader" type="x-shader/x-fragment">
+
+
+    //The width and height of our screen
+    uniform vec2 iResolution;
+    //Our input texture
+    uniform sampler2D bufferTexture;
+    uniform float iTime;
+    uniform float iUseKinect;
+    
+    uniform sampler2D iChannel0;
+    uniform sampler2D iKinectDepth;
+    uniform vec2 iMouse[2];
+    varying vec2 vUv;
+
+
+    
+    // Created by inigo quilez - iq/2013 : https://www.shadertoy.com/view/4dl3zn
+    // License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+    // Messed up by Weyland
+    
+    vec3 rgb2hsv(vec3 rgb)
+    {
+        float Cmax = max(rgb.r, max(rgb.g, rgb.b));
+        float Cmin = min(rgb.r, min(rgb.g, rgb.b));
+        float delta = Cmax - Cmin;
+    
+        vec3 hsv = vec3(0., 0., Cmax);
+        
+        if (Cmax > Cmin)
+        {
+            hsv.y = delta / Cmax;
+    
+            if (rgb.r == Cmax)
+                hsv.x = (rgb.g - rgb.b) / delta;
+            else
+            {
+                if (rgb.g == Cmax)
+                    hsv.x = 2. + (rgb.b - rgb.r) / delta;
+                else
+                    hsv.x = 4. + (rgb.r - rgb.g) / delta;
+            }
+            hsv.x = fract(hsv.x / 6.);
+        }
+        return hsv;
+    }
+    
+    
+    float chromaKey(vec3 color)
+    {
+        //vec3 backgroundColor = vec3(0.157, 0.576, 0.129); //green
+        vec3 backgroundColor = vec3(0., 0., 0.);
+        vec3 weights = vec3(4., 1., 2.);
+    
+        vec3 hsv = rgb2hsv(color);
+        vec3 target = rgb2hsv(backgroundColor);
+        
+        float dist = length(weights * (target - hsv));
+        
+        return 1. - clamp(3. * dist - 1.5, 0.1, 1.);
+    }
+    
+    vec4 mask(vec3 color, float alpha)
+    {
+        return vec4(color.xyz, alpha);
+    }
+    
+    
+    float hash( vec2 p ) {
+        float h = dot(p,vec2(127.1,311.7));	
+        return fract(sin(h)*43758.5453123);
+    }
+    float noise( in vec2 p ) {
+        vec2 i = floor( p );
+        vec2 f = fract( p );	
+        vec2 u = f*f*(3.0-2.0*f);
+        return -1.0+2.0*mix( mix( hash( i + vec2(0.0,0.0) ), 
+                         hash( i + vec2(1.0,0.0) ), u.x),
+                    mix( hash( i + vec2(0.0,1.0) ), 
+                         hash( i + vec2(1.0,1.0) ), u.x), u.y);
+    }
+
+    /**
+    * Returns accurate MOD when arguments are approximate integers.
+    */
+   float modI(float a,float b) {
+       float m=a-floor((a+0.5)/b)*b;
+       return floor(m+0.5);
+   }
+
+   float normpdf(in float x, in float sigma)
+   {
+       return 0.39894*exp(-0.5*x*x/(sigma*sigma))/sigma;
+   }
+   
+   vec3 blurFunction(in vec2 p, in vec2 res) {
+    vec2 u = p.xy / res.xy;
+    vec3 c = texture2D(iKinectDepth, p.xy / res.xy).rgb;
+
+    
+    //declare stuff
+    const int mSize = 11;
+    const int kSize = (mSize-1)/2;
+    float kernel[mSize];
+    vec3 final_colour = vec3(0.0);
+    
+    //create the 1-D kernel
+    float sigma = 7.0;
+    float Z = 0.0;
+    for (int j = 0; j <= kSize; ++j)
+    {
+        kernel[kSize+j] = kernel[kSize-j] = normpdf(float(j), sigma);
+    }
+    
+    //get the normalization factor (as the gaussian has been clamped)
+    for (int j = 0; j < mSize; ++j)
+    {
+        Z += kernel[j];
+    }
+    
+    //read out the texels
+    for (int i=-kSize; i <= kSize; ++i)
+    {
+        for (int j=-kSize; j <= kSize; ++j)
+        {
+            final_colour += kernel[kSize+j]*kernel[kSize+i]*(texture2D(iKinectDepth, (p.xy+vec2(float(i),float(j))) / res.xy).rgb);
+
+        }
+    }
+   return final_colour;
+}
+    void main()
+    {
+        vec2 c = 	gl_FragCoord.xy / iResolution.xy; 
+
+        //Color of pixels comes from the the buffer
+        vec4 col = texture2D( bufferTexture, c.xy );
+
+        vec2 uv = -1.0 + 2.0*gl_FragCoord.xy / iResolution.xy;
+    
+        float alpha = 1.0;
+
+        
+        vec3 kinectBlurred = blurFunction(gl_FragCoord.xy, iResolution.xy);
+        
+
+        //This will render the Kinect depth image "as is"
+        vec4 colorKinect =  vec4(texture2D(iKinectDepth, c).xyz, 1.);
+        //gl_FragColor = colorKinect  ;                         
+        //return;
+
+        vec3 alphaCalc =  kinectBlurred.xyz; //+  texture2D(iKinectDepth, c).xyz;        
+        alpha =alphaCalc.b; // 1.0 - smoothstep(0.015,0.01, alphaCalc.x);
+
+        //gl_FragColor = vec4(kinectBlurred, 1.0);
+        //return;
+
+        
+        
+        if(alpha < 0.008 ) {
+            //Fades to black
+            col -= alpha / 50. ;
+            gl_FragColor = col;
+            return;
+        }
+        
+            
+        
+    
+        uv.x *=  iResolution.x / iResolution.y;
+        vec3 color = vec3(0.0);
+    
+        vec4 background = texture2D(iChannel0, c);
+        float radiusAroundPixel = 16.;
+        
+        vec4 b = vec4(0.0,0.0,0.0,0.0);
+        
+        b =  texture2D(iKinectDepth, c);
+        
+
+            
+        for( int i=0; i<128; i++ ) //number of blobs drawn on screen
+        {
+            /*
+        
+        float x_i = (gl_FragCoord.x - radiusAroundPixel / 2.0)  +  float(modI(float(i), radiusAroundPixel));
+        float y_i = (gl_FragCoord.y - radiusAroundPixel / 2.0)  +  float(i  / int(radiusAroundPixel));
+        float d = distance(vec2(x_i,y_i), gl_FragCoord.xy);  
+        
+        if(iUseKinect == 1.0) {
+            vec2 maskCoord = vec2(x_i,y_i) / iResolution.xy;
+            b.r =  max(b.r, (texture2D(iKinectDepth, maskCoord).r));
+        }
+        */
+            
+        float c1 = 546.13 + 20. * step(alphaCalc.b, 0.985) *0.193*sin(float(iTime/1000.));
+        float c2 = 651.74;
+        float c3 = 321.55;
+            
+            
+        float pha =      sin(float(i)*c1+1.0)*0.5 + 0.5;
+        float siz = pow( sin(float(i)*c2+5.0)*0.5 + 0.5, 4.0 );
+        float pox =      sin(float(i)*c3+4.1) * iResolution.x / iResolution.y;
+        
+        //radius  
+        float rad = 0.1+0.5*siz+sin(pha+siz)/8.0;
+            
+        vec2  pos = vec2( pox+sin(iTime/7.+pha+siz), 
+                            - 1.0-rad 
+                            + (2.0+2.0*rad)
+                            *  mod(pha+0.3*(iTime/2.)
+                            * (0.2+0.8*siz),1.0));
+        float dis = length( uv - pos );
+        
+        float amount = 0.5+0.5*sin(float(i));
+        vec3 color1 = mix(vec3(1.0) - background.xyz,
+                            vec3(0.194*sin(iTime)+0.3,0.2,0.3), 
+                            amount);
+        vec3 color2 = vec3(1.1*sin(iTime)+0.3,0.2*pha,0.4);      
+        
+            
+        vec3  col = mix( color1, color2, amount );  
+        
+        float f = length(uv-pos)/rad;
+        f = sqrt(clamp(1.0+(sin((iTime)*siz)*0.5)*f,0.0,1.0));
+        color += col.zyx *(1.0-smoothstep( rad*0.15, rad, dis ));
+        }
+        color *= sqrt(1.5-0.5*length(uv));        
+        
+        gl_FragColor =vec4(color.xyz,0.0);         
+
+    }
+        
+
+    </script>
+    <style>
+         
+        html, body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        div.layover {
+            background: rgb(238, 0, 140);
+            /* for IE */
+            background: rgba(238, 0, 140,0.5);
+        }
+
+        .absolute-center {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 120px;
+            height: 120px;
+            margin-top: -60px; /*set to a negative number 1/2 of your height*/
+            margin-left: -60px; /*set to a negative number 1/2 of your width*/
+        }
+
+        #progressbart {
+            position: fixed;
+            height: 4vmin;
+            width: 0;
+            bottom: 0;
+        }
+
+        #imgAuthor {
+            position: fixed;
+            width: auto;
+            -ms-opacity: 0;
+            opacity: 0;
+            font-size: 4vmin;
+            line-height: 4vmin;
+            height: 4vmin;
+            color: #c2ca8a;
+            right: 0;
+            padding-right: 2vmin;
+            padding-left: 2vmin;
+            bottom: 0;
+        }
+
+        .galleryImage {
+            max-width: 100%;
+            height: 100%;
+            bottom: 0;
+            left: 0;
+            margin: auto;
+            overflow: auto;
+            position: fixed;
+            right: 0;
+            top: 0;
+        }
+    </style>
+    <!-- Place favicon.png and apple-touch-icon.png in the root directory -->
+    <link rel="shortcut icon" href="/favicon.png">
+    <!-- Google Webfonts -->
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,100,500' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+    <link href="../../css/tooltipster.bundle.min.css" rel="stylesheet" />
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="/css/animate.css">
+    <!-- Icomoon Icon Fonts-->
+    <link rel="stylesheet" href="/css/icomoon.css">
+    <!-- Magnific Popup -->
+    <link rel="stylesheet" href="/css/magnific-popup.css">
+    <!-- Salvattore -->
+    <link rel="stylesheet" href="/css/salvattore.css">
+    <!-- Theme Style -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- Modernizr JS -->
+    <script src="/Scripts/modernizr-2.6.2.min.js"></script>
+    <!-- FOR IE9 below -->
+    <!--[if lt IE 9]>
+    <script src="Scripts/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+    <div style="position: absolute">
+
+        <img id="imageProviderDummy" style="visibility: hidden" /> 
+        <img id="kinectDepthImageEl" style="visibility: hidden" src="/images/512x512.jpg" />
+
+        <img id="backgroundNextImageEl" />
+    </div>
+    <img id="backgroundImageEl" class="galleryImage" /> 
+        <div style="position: absolute; width:120px">
+        <div id="imgLoading" class="absolute-center">
+            <img src="/images/infinity.gif" />
+        </div>
+    </div>
+    <div id="container"></div>
+
+    <div id="progbar-container" style="position: absolute; bottom: 50px; left: 50px; width: 50px; height: 50px; opacity: 0">
+        <div>
+
+        </div>
+    </div>
+
+    <div id="spanBackground" style="background: rgba(238, 0, 140, 120);" class="tooltipjs" title="Move to interact">
+
+    </div>
+
+    <div id="progressbart" class="layover">
+        <div id="imgAuthor" class="layover">Half Scheidl</div>
+    </div>
+    <!-- jQuery Easing -->
+    <script src="/Scripts/jquery.easing.1.3.js"></script>
+    <!-- Bootstrap -->
+    <script src="/Scripts/bootstrap.min.js"></script>
+    <!-- Waypoints -->
+    <script src="/Scripts/jquery.waypoints.min.js"></script>
+    <!-- Magnific Popup -->
+    <script src="/Scripts/jquery.magnific-popup.min.js"></script>
+    <!-- Salvattore -->
+    <script src="/Scripts/salvattore.min.js"></script>
+
+</body>
+</html>

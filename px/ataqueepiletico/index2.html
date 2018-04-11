@@ -1,0 +1,234 @@
+﻿<html lang="en">
+<head>
+    <title>Cuidado com a epilepxia</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <script src="../../Scripts/jquery-1.11.0.min.js"></script>
+    <script src="../../Scripts/threejs/Detector.js"></script>
+    <script src="../../Scripts/threejs/stats.min.js"></script>
+    <script src="../../Scripts/threejs/Three.js"></script>
+    <script src="../../Scripts/threejs/ImageUtils.js"></script>
+    <script src="../../Scripts/KinectMessageType.js"></script>
+    <script src="../../Scripts/KinectWorkerManager.js"></script>
+
+    <script src="threescript.js"></script>
+    <script src="../../Scripts/threejs/GalleryRenderer.js"></script>
+    <script id="vertexShader" type="x-shader/x-vertex">
+        varying vec2 vUv;
+        void main()
+        {
+        vUv = uv;
+
+        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0 );
+        gl_Position = projectionMatrix * mvPosition;
+        }
+    </script>
+
+    <script id="fragmentShaderJoints" type="x-shader/x-fragment">
+
+
+
+
+    </script>
+    <script id="noiseFunction" type="x-shader/x-fragment">
+        //
+        // Description : Array and textureless GLSL 2D simplex noise function.
+        //      Author : Ian McEwan, Ashima Arts.
+        //  Maintainer : stegu
+        //     Lastmod : 20110822 (ijm)
+        //     License : Copyright (C) 2011 Ashima Arts. All rights reserved.
+        //               Distributed under the MIT License. See LICENSE file.
+        //               https://github.com/ashima/webgl-noise
+        //               https://github.com/stegu/webgl-noise
+        //
+
+        vec3 mod289(vec3 x) {
+        return x - floor(x * (1.0 / 289.0)) * 289.0;
+        }
+
+        vec2 mod289(vec2 x) {
+        return x - floor(x * (1.0 / 289.0)) * 289.0;
+        }
+
+        vec3 permute(vec3 x) {
+        return mod289(((x*34.0)+1.0)*x);
+        }
+
+        float snoise(vec2 v)
+        {
+        const vec4 C = vec4(0.211324865405187,  // (3.0-sqrt(3.0))/6.0
+        0.366025403784439,  // 0.5*(sqrt(3.0)-1.0)
+        -0.577350269189626,  // -1.0 + 2.0 * C.x
+        0.024390243902439); // 1.0 / 41.0
+        // First corner
+        vec2 i  = floor(v + dot(v, C.yy) );
+        vec2 x0 = v -   i + dot(i, C.xx);
+
+        // Other corners
+        vec2 i1;
+        //i1.x = step( x0.y, x0.x ); // x0.x > x0.y ? 1.0 : 0.0
+        //i1.y = 1.0 - i1.x;
+        i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+        // x0 = x0 - 0.0 + 0.0 * C.xx ;
+        // x1 = x0 - i1 + 1.0 * C.xx ;
+        // x2 = x0 - 1.0 + 2.0 * C.xx ;
+        vec4 x12 = x0.xyxy + C.xxzz;
+        x12.xy -= i1;
+
+        // Permutations
+        i = mod289(i); // Avoid truncation effects in permutation
+        vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
+        + i.x + vec3(0.0, i1.x, 1.0 ));
+
+        vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+        m = m*m ;
+        m = m*m ;
+
+        // Gradients: 41 points uniformly over a line, mapped onto a diamond.
+        // The ring size 17*17 = 289 is close to a multiple of 41 (41*7 = 287)
+
+        vec3 x = 2.0 * fract(p * C.www) - 1.0;
+        vec3 h = abs(x) - 0.5;
+        vec3 ox = floor(x + 0.5);
+        vec3 a0 = x - ox;
+
+        // Normalise gradients implicitly by scaling m
+        // Approximation of: m *= inversesqrt( a0*a0 + h*h );
+        m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+
+        // Compute final noise value at P
+        vec3 g;
+        g.x  = a0.x  * x0.x  + h.x  * x0.y;
+        g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+        return 130.0 * dot(m, g);
+        }
+    </script>
+    <script id="fragmentShader" type="x-shader/x-fragment">
+        //The width and height of our screen
+        uniform vec2 res;
+
+        //Our input texture
+        uniform sampler2D bufferTexture;
+
+        uniform float iGlobalTime;
+        uniform float iKinectJoints[25];
+        uniform sampler2D iChannel0;
+        uniform sampler2D iKinectDepth;
+        uniform vec2 iMouse[2];
+        varying vec2 vUv;
+        #define M_PI 3.1415926535897932384626433832795
+
+        float rand(vec2 co){
+        return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+        }
+
+
+        void main() {
+        vec2 p = gl_FragCoord.xy / res.xy;
+
+
+        //Color of pixels comes from the the buffer
+        vec4 col = texture2D( bufferTexture, vec2(p.x,p.y) );
+        float alpha = texture2D(iKinectDepth, p).g;
+
+        if(alpha <= 0.1) {
+        //Fades to black
+        col -= 0.0001;
+        gl_FragColor = col;
+        return;
+        }
+
+        float brightness;
+        vec4 pPicture;
+
+        float ro = 0.0001;
+
+        //diameter of the cell
+        float d1 =  0.008;
+
+        col = mix(col,texture2D(iChannel0, p),alpha);
+
+        //Dividing the screen in n cells. To-do: move const
+        float n =  floor(res.x/d1  * .5);
+
+        //In each cell the pixel is located?
+        float i  = floor( p.x / d1 );
+        float j  = floor( p.y / d1 );
+
+        //Center of the cell of the pixel
+        vec2 cij = (vec2(i,j) + 0.5 ) * ( d1 ) ;
+
+        //some variation on the position of the small circles
+        cij += sin(iGlobalTime* rand(cij)*15. ) / 150.;
+
+
+
+        if(length(cij - p) <= d1/2. ) { //if point is inside the cell
+        pPicture = texture2D(iChannel0, p); //from the background picture
+        brightness = sqrt(pow(0.299 * pPicture.r,2.) + 0.587 * pow(pPicture.g, 2.) + 0.114 * pow(pPicture.b, 2.));
+        d1 *= clamp(brightness* 1.1,0.5,1.5);
+
+        //taking color from the center of each small circle
+        float f = smoothstep(d1, d1+ 0.1, distance(cij,p));
+        col =  (1. - f) * texture2D(iChannel0, cij) + col*f;
+        col -= alpha;
+        }
+
+        //Fades to black
+        //col -= 0.0001;
+        gl_FragColor = col;
+        }
+
+
+    </script>
+    <style>
+        body {
+            color: #ffffff;
+            font-family: Monospace;
+            font-size: 13px;
+            text-align: center;
+            font-weight: bold;
+            background-color: #000000;
+            margin: 0px;
+            overflow: hidden;
+        }
+
+        #info {
+            position: absolute;
+            top: 0px;
+            width: 100%;
+            padding: 5px;
+        }
+
+        a {
+            color: #ffffff;
+        }
+
+        #oldie a {
+            color: #da0;
+        }
+
+        .Absolute-Center {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 120px;
+            height: 120px;
+            margin-top: -60px; /*set to a negative number 1/2 of your height*/
+            margin-left: -60px; /*set to a negative number 1/2 of your width*/
+        }
+    </style>
+
+
+</head>
+<body>
+    <div style="position: absolute; visibility: hidden;">
+        <img id="dummyImgElement" />
+        <img id="kinectDepthImageEl" />
+    </div>
+    <div id="container"></div>
+    <!--<div id="imgLoading" class="absolute-center">
+        <img src="/images/infinity.gif"/>
+    </div>-->
+</body>
+</html>

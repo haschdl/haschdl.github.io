@@ -1,0 +1,304 @@
+﻿<html lang="en">
+<head>
+    <title>Cuidado com a epilepxia</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+        body {
+            color: #ffffff;
+            font-family: Monospace;
+            font-size: 13px;
+            text-align: center;
+            font-weight: bold;
+            background-color: #000000;
+            margin: 0px;
+            overflow: hidden;
+        }
+
+        #info {
+            position: absolute;
+            top: 0px;
+            width: 100%;
+            padding: 5px;
+        }
+
+        a {
+            color: #ffffff;
+        }
+
+        #oldie a {
+            color: #da0;
+        }
+          .Absolute-Center {
+            position:fixed;
+            top: 50%;
+            left: 50%;
+            width:120px;
+            height:120px;
+            margin-top: -60px; /*set to a negative number 1/2 of your height*/
+            margin-left: -60px; /*set to a negative number 1/2 of your width*/
+            
+         }
+    </style>
+
+   
+</head>
+<body>
+
+    <div id="container"></div>
+    <script src="../../Scripts/jquery-1.11.0.min.js"></script>
+    
+    <script src="../../Scripts/threejs/Detector.js"></script>
+    <script src="../../Scripts/threejs/stats.min.js"></script>
+    <script src="../../Scripts/threejs/three.min.js"></script>
+
+    <script id="vertexShader" type="x-shader/x-vertex">
+        varying vec2 vUv;
+        void main()
+        {
+        vUv = uv;
+
+        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0 );
+        gl_Position = projectionMatrix * mvPosition;
+        }
+    </script>
+
+<script id="fragmentShader" type="x-shader/x-fragment">
+        uniform float iGlobalTime;
+        uniform sampler2D iChannel0;
+        uniform sampler2D iChannel1;
+        uniform vec2 uVec2;
+
+        varying vec2 vUv;
+        
+
+        void main(void)
+        {
+        vec2 p = -1.0 + 2.0 *vUv;
+        vec2 q = p - vec2(0.5, 0.5);
+
+        q.x += sin(iGlobalTime* 0.9) * 0.2;
+        //q.y += cos(iGlobalTime* 0.4) * 0.3;
+        q.x -= uVec2.x/ 500.;
+        q.y -= uVec2.y / 500.;
+
+        float len = length(q);
+
+        float a = atan(q.y, q.x) + iGlobalTime * 0.3;
+        float b = atan(q.y, q.x) + iGlobalTime * 0.3;
+        float r1 = 0.3 / len + iGlobalTime * 0.5;
+        float r2 = 0.2 / len + iGlobalTime * 0.5;
+
+        float m = (1.0 + sin(iGlobalTime * 0.5)) / 2.0;
+        vec4 tex1 = texture2D(iChannel0, vec2(a + 0.1 / len, r1 ));
+        vec4 tex2 = texture2D(iChannel1, vec2(b + 0.1 / len, r2 ));
+        vec3 col = vec3(mix(tex1, tex2, m));
+        gl_FragColor = vec4(col * len * 1.5, 1.0);
+        }
+
+    </script>
+
+    <script>
+
+        if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+        var container, stats;
+
+        var clock, camera, scene, renderer;
+
+        var tuniform;
+        // Custom global variables
+        var mouse = { x: 0, y: 0 };
+        var mouseXOnMouseDown = 0, mouseX = 0, mouseY = 0;
+        var windowHalfX = window.innerWidth / 2;
+		var windowHalfY = window.innerHeight / 2;
+		
+        init();
+        animate();
+
+        function init() {
+            clock = new THREE.Clock();
+
+            container = document.getElementById( 'container' );
+
+            //See https://msdn.microsoft.com/en-us/library/dn479430(v=vs.85).aspx
+            var camz = 1000;
+            var ang = 2*Math.atan2(window.innerHeight / 2, camz) * 180 / Math.PI;
+            camera = new THREE.PerspectiveCamera(ang,window.innerWidth / window.innerHeight,0.1,1001);
+            camera.position.set(0, 0, camz);
+
+            scene = new THREE.Scene();
+          
+
+
+            var loader = new THREE.TextureLoader();
+
+            
+
+            //See https://github.com/mrdoob/three.js/wiki/Uniforms-types
+            tuniform = {
+                uVec2   : { type: "v2", value: new THREE.Vector2(0, 1) },
+                iGlobalTime: { type: 'f', value: 0.1 },
+                iChannel0: { type: 't', value: loader.load("../../p5/media/GALLERY_1.jpg") },
+                iChannel1: { type: 't', value: loader.load("../../p5/media/GALLERY_2.jpg") }
+            };
+
+            tuniform.iChannel0.value.wrapS = tuniform.iChannel0.value.wrapT = THREE.RepeatWrapping;
+            tuniform.iChannel1.value.wrapS = tuniform.iChannel1.value.wrapT = THREE.RepeatWrapping;
+            var mat = new THREE.ShaderMaterial({
+                uniforms: tuniform,
+                vertexShader: document.getElementById( 'vertexShader' ).textContent,
+                fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
+                side: THREE.DoubleSide
+            });
+
+            var tobject = new THREE.Mesh(new THREE.PlaneGeometry(window.innerWidth, window.innerHeight, 1, 1), mat);
+
+
+
+
+            scene.add( tobject);
+
+            renderer = new THREE.WebGLRenderer();
+            renderer.setPixelRatio( window.devicePixelRatio );
+            container.appendChild( renderer.domElement );
+            
+            stats = new Stats();
+            
+            /*
+            container.appendChild( stats.dom );
+            */
+
+            onWindowResize();
+            document.addEventListener('mousedown', onDocumentMouseDown, false);
+            document.addEventListener('touchstart', onDocumentTouchStart, false);
+            document.addEventListener('touchmove', onDocumentTouchMove, false);
+
+            //
+
+            window.addEventListener('resize', onWindowResize, false);
+
+        }
+
+        function onWindowResize() {
+
+            windowHalfX = window.innerWidth / 2;
+            windowHalfY = window.innerHeight / 2;
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+        }
+
+        //
+
+        function onDocumentMouseDown(event) {
+
+            event.preventDefault();
+
+            document.addEventListener('mousemove', onDocumentMouseMove, false);
+            document.addEventListener('mouseup', onDocumentMouseUp, false);
+            document.addEventListener('mouseout', onDocumentMouseOut, false);
+
+            mouseXOnMouseDown = event.clientX - windowHalfX;
+            //targetRotationOnMouseDown = targetRotation;
+
+        }
+
+        function onDocumentMouseMove(event) {
+
+            mouseX = event.clientX;
+            mouseY = event.clientY;
+
+            //targetRotation = targetRotationOnMouseDown + (mouseX - mouseXOnMouseDown) * 0.02;
+
+        }
+
+        function onDocumentMouseUp(event) {
+
+            document.removeEventListener('mousemove', onDocumentMouseMove, false);
+            document.removeEventListener('mouseup', onDocumentMouseUp, false);
+            document.removeEventListener('mouseout', onDocumentMouseOut, false);
+
+        }
+
+        function onDocumentMouseOut(event) {
+
+            document.removeEventListener('mousemove', onDocumentMouseMove, false);
+            document.removeEventListener('mouseup', onDocumentMouseUp, false);
+            document.removeEventListener('mouseout', onDocumentMouseOut, false);
+
+        }
+
+        function onDocumentTouchStart(event) {
+
+            if (event.touches.length === 1) {
+
+                event.preventDefault();
+
+                mouseXOnMouseDown = event.touches[0].pageX;
+
+                mouseX = mouseXOnMouseDown;
+                mouseY = event.touches[0].pageY;
+                //targetRotationOnMouseDown = targetRotation;
+
+            }
+
+        }
+
+        function onDocumentTouchMove(event) {
+
+            if (event.touches.length === 1) {
+
+                event.preventDefault();
+
+                mouseX = event.touches[0].pageX;
+                mouseY = event.touches[0].pageY;
+                //targetRotation = targetRotationOnMouseDown + (mouseX - mouseXOnMouseDown) * 0.05;
+                updatePos();
+            }
+
+        }
+
+
+        //
+
+        function animate() {
+
+            requestAnimationFrame( animate );
+
+            render();
+            stats.update();
+
+        }
+
+        function render() {
+
+            tuniform.iGlobalTime.value += clock.getDelta();
+
+            renderer.render( scene, camera );
+
+        }
+
+        function updatePos() {
+            var x = (mouseX / window.innerWidth) * 2 - 1;
+            var y = -(mouseY/ window.innerHeight) * 2 + 1;
+
+            var vector = new THREE.Vector3(x, y, 0.5);
+            vector.unproject(camera);
+            var dir = vector.sub(camera.position).normalize();
+            var distance = -camera.position.z / dir.z;
+            var pos = camera.position.clone().add(dir.multiplyScalar(distance));
+
+            tuniform.uVec2.value.x = pos.x;
+            tuniform.uVec2.value.y = pos.y;
+        }
+
+    </script>
+    <div id="imgLoading" class="absolute-center">
+        <img src="/images/infinity.gif" />
+    </div>
+</body>
+</html>
