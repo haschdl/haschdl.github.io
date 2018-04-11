@@ -1,4 +1,4 @@
-/// <reference path="../../Scripts/jquery-1.11.0.min.js" />
+/// <reference path="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" />
 /// <reference path="../../Scripts/progressbar.min.js" />
 /// <reference path="galleryimgprovider.js" />
 /// <reference path="tooltip.js" />
