@@ -1,8 +1,4 @@
-﻿/// <reference path="../libraries/p5.js" />
-/// <reference path="../libraries/p5.sound.js" />
-/// <reference path="../libraries/p5.dom.js" />
-
-var isDebug = false;
+﻿var isDebug = false;
 
 // prevent scrolling of page
 document.ontouchmove = function (event) {
