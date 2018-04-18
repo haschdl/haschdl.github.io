@@ -87,6 +87,7 @@ function preload() {
     }
 
     dataTable = loadTable("data.txt", "csv");
+    console.debug("p5js preload completed!");
 }
 
 function setup() {
@@ -101,9 +102,13 @@ function setup() {
     //the initial position of the camere
     //it can be adjusted during mouseWheel event
     t0 = createVector(0, height / 8, 0);
+    console.debug("p5js setup completed! Calculated radius: " + earthRadiusScreen);
 }
 
 function loadFile() {
+    if(dataTable === undefined)
+        console.error("Data table not loaded from data.txt!");
+
     //first row has the seed value
     var seedStr = dataTable.getString(0, 0).replace("#SEED: ", "");
     seedValue = float(seedStr);
@@ -132,6 +137,7 @@ function loadFile() {
             routeTo = coordToVector(lat, lon, alt, earthRadius);
         }
     }
+    console.debug("Loaded data from data.txt!");
 }
 
 
@@ -187,6 +193,9 @@ function drawInfo() {
 }
 function draw() {
     background(0);
+
+
+    //end of sample
     t = millis();
 
     if (keyIsDown(UP_ARROW) && document.getElementById("selRoutes") !== document.activeElement) {
@@ -204,7 +213,7 @@ function draw() {
 
 
     translate(t0.x, t0.y, t0.z);
-    camera(0, 0, 0);
+    //camera(0, 0, 0);
 
 
     if (animate == true) {
@@ -247,11 +256,11 @@ function draw() {
         texture(img_earth);
         //making slightly smaller due to satellite
         //proportions
-        sphere(earthRadiusScreen * .95, 40);
+        sphere(earthRadiusScreen * .95,40);
     }
     else {
         texture(img_fire);
-        sphere(earthRadiusScreen / 5, 40);
+        sphere(earthRadiusScreen / 5,40);
     }
 
     //drawing the satellites
@@ -279,41 +288,36 @@ function draw() {
     var routeTo_s = p5.Vector.mult(routeTo, coef);
     translate(routeTo_s.x, routeTo_s.y, routeTo_s.z);
     texture(imgLanding);
-    sphere(10, 20);
+    sphere(10);
     pop();
 
     pop();
 
     //splash screen  for 5 seconds
     if (typeof showIntro == 'undefined') {
-        //pointLight(255, 147, 41, 255, 0, 0, -t0.z );       
-
-        if (t > 4000) {
-            showIntro = false;
-            createSolveButton();
-            t_z += 300;
-            animate = true;            
-            return;
-        }
-
+        //pointLight(255, 147, 41, 255, 0, 0, -t0.z );      
         //Splash
         if (t < 4000) {
             var splash_w_0 = 0.1 * d * Math.min(width, height);
 
             push();
-            translate(-t0.x, -t0.y, -t0.z);
-            translate(0, 0, 600);
+            //translate(-t0.x, t0.y, -t0.z);
+            translate(0, -90, 500);
             ambientMaterial(200, 20, 20, 40);
             plane(width, splash_w_0 * 0.66);
             texture(img_splash);
             plane(splash_w_0, splash_w_0);
             pop();
-        }        
+        }     
+        else  {        
+            showIntro = false;
+            createSolveButton();
+            t_z += 100;
+            animate = true;            
+            return;            
+        }   
     }
-    else {
-        pointLight(255, 255, 255, 255, 0, 0, 0);
-
-    }
+    
 }
 
 function drawRoute(routeToDraw) {
@@ -513,7 +517,7 @@ function drawStars(howMany) {
         ambientMaterial(255, 255, 255);
         texture(img_star);
         var pos = createVector(x, y, -100);
-        sphere(2, 10);
+        sphere(2);
         pop();
     }
 
@@ -525,7 +529,7 @@ function keyPressed() {
     }
 }
 
-function touchEnded() {
+function mouseReleased() {
     if (enableWebGl == true) {
         showEarth = !showEarth;
     }
