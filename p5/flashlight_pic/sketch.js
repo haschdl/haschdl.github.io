@@ -1,8 +1,3 @@
-/// <reference path="../libraries/p5.js" />
-/// <reference path="../libraries/p5.sound.js" />
-/// <reference path="../libraries/p5.dom.js" />
-/// <reference path="../libraries/jquery-1.11.0.min.js" />
-
 var isDebug = false;
 
 // prevent scrolling of page
@@ -110,14 +105,6 @@ function draw() {
     var width_c = capture.width / windowWidth;
     var height_c = capture.height / windowHeight;
 
-    //when using a static image and not a camere
-    //loadPixels can be called just once during startup()
-    //capturePixels.loadPixels();
-
-    //image(capture,0,0);
-
-    // Draw a background that fades to black. Decrease the 2nd
-    // argument to fade out faster. <18 leaves a 'stain' on the screen, why?
     noStroke();
     
     fill(0, 0,0,100);
