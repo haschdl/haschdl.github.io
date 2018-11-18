@@ -1,2 +1,2 @@
-# haschdl.github.io
-This is the source code for my personal Github pages. Browse at [haschdl.github.io](haschdl.github.io).
+# hscheidl.com
+This is the source code for my personal Github pages. Browse at [hscheidl.com](hscheidl.com).
